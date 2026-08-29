@@ -56,7 +56,7 @@ To utilize the automated pipeline:
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/keshfd/mailflare-mobile.git](https://github.com/keshfd/mailflare-mobile.git)
+   git clone https://github.com/keshfd/mailflare-mobile.git
    cd mailflare-mobile
    ```
 
