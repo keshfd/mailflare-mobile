@@ -28,7 +28,7 @@ Mailflare Mobile is designed to be forked and rebranded to launch your own email
 module.exports = {
   appName: 'TrooPost Mail',
   bundleIdentifier: 'com.troopost.mail',
-  apiBaseUrl: process.env.EXPO_PUBLIC_MAILFLARE_API_URL || '[https://api.troopost.com](https://api.troopost.com)',
+  apiBaseUrl: process.env.EXPO_PUBLIC_MAILFLARE_API_URL || 'https://api.troopost.com',
   colors: {
     primary: '#0055FF', // Your brand color
     background: '#FFFFFF',
