@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mailflare-mobile-init",
-    "slug": "mailflare-mobile-init",
+    "name": "mailflare-mobile",
+    "slug": "mailflare-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -40,3 +40,27 @@ export async function hasSessionToken(): Promise<boolean> {
   const token = await getSessionToken();
   return token !== null && token.length > 0;
 }
+
+// --- Push Token Storage ---
+
+const PUSH_TOKEN_KEY = "mailflare_push_token";
+
+export async function storePushToken(token: string): Promise<void> {
+  await SecureStore.setItemAsync(PUSH_TOKEN_KEY, token);
+}
+
+export async function getStoredPushToken(): Promise<string | null> {
+  try {
+    return await SecureStore.getItemAsync(PUSH_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export async function clearStoredPushToken(): Promise<void> {
+  try {
+    await SecureStore.deleteItemAsync(PUSH_TOKEN_KEY);
+  } catch {
+    // Ignore error
+  }
+}

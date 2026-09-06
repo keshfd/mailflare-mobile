@@ -312,3 +312,14 @@ export interface SuccessResponse {
   success?: true;
   ok?: true;
 }
+
+// --- Device Push Tokens ---
+
+export interface DeviceRegisterRequest {
+  token: string;
+  platform: 'ios' | 'android' | 'web';
+}
+
+export interface DeviceRevokeRequest {
+  token: string;
+}

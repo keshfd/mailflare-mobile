@@ -3,6 +3,10 @@ import { useAuthStore } from "../stores/authStore";
 import { useAppConfigStore } from "../stores/appConfigStore";
 import { useLogin as useLoginMutation, useLogout as useLogoutMutation, useAuthMe } from "../api/queries";
 import { storeSessionToken, getSessionToken, clearSessionToken } from "../utils/tokenStorage";
+import {
+  registerDevicePushPipeline,
+  revokePushTokenFromServer,
+} from "./usePushNotifications";
 import type { LoginRequest } from "../types";
 
 /**
@@ -73,6 +77,11 @@ export function useAuth() {
       setHasMailboxes(data.hasMailboxes);
       setIsSetup(data.isSetup);
       setChecked();
+
+      // Sync push token for restored session
+      registerDevicePushPipeline().catch((err) => {
+        console.warn("Failed to register push token for restored session:", err);
+      });
     } catch {
       await clearSessionToken();
       storeLogout();
@@ -114,6 +123,11 @@ export function useAuth() {
           isSetup: meData.isSetup,
         });
 
+        // Register push token after successful login
+        registerDevicePushPipeline().catch((err) => {
+          console.warn("Failed to register push token after login:", err);
+        });
+
         return result;
       } finally {
         setLoading(false);
@@ -126,6 +140,13 @@ export function useAuth() {
    * Log out and clear all auth state.
    */
   const logout = useCallback(async () => {
+    try {
+      // Revoke push token from server before tearing down auth
+      await revokePushTokenFromServer();
+    } catch (pushErr) {
+      console.warn("Failed to revoke push token during logout:", pushErr);
+    }
+
     try {
       await logoutMutation.mutateAsync();
     } catch {

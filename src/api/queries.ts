@@ -30,6 +30,8 @@ import type {
   UpdateProfileRequest,
   UpdateProfileResponse,
   CreateFolderRequest,
+  DeviceRegisterRequest,
+  DeviceRevokeRequest,
 } from "../types";
 
 // ============================================================================
@@ -349,6 +351,34 @@ export function useUpdateProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.authMe });
+    },
+  });
+}
+
+// ============================================================================
+// Device Push Tokens
+// ============================================================================
+
+export function useRegisterDevice() {
+  return useMutation({
+    mutationFn: async (payload: DeviceRegisterRequest) => {
+      const { data } = await apiClient.post<SuccessResponse>(
+        "/api/devices/register",
+        payload
+      );
+      return data;
+    },
+  });
+}
+
+export function useRevokeDevice() {
+  return useMutation({
+    mutationFn: async (payload: DeviceRevokeRequest) => {
+      const { data } = await apiClient.post<SuccessResponse>(
+        "/api/devices/revoke",
+        payload
+      );
+      return data;
     },
   });
 }

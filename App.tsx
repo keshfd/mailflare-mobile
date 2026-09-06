@@ -8,6 +8,10 @@ import { useAuthStore } from "./src/stores/authStore";
 import { resolveBaseUrl, isBaseUrlLocked, getEnvBaseUrl } from "./src/config/baseUrl";
 import { getSessionToken } from "./src/utils/tokenStorage";
 import { useAuth } from "./src/hooks/useAuth";
+import {
+  usePushNotifications,
+  registerDevicePushPipeline,
+} from "./src/hooks/usePushNotifications";
 
 // Screens
 import ServerSetupScreen from "./src/screens/ServerSetupScreen";
@@ -42,6 +46,7 @@ function AppContent() {
 
   const { user, isChecked } = useAuthStore();
   const { checkExistingSession } = useAuth();
+  usePushNotifications();
 
   // Phase 1: Resolve the server URL on startup
   useEffect(() => {
@@ -67,6 +72,15 @@ function AppContent() {
       checkExistingSession();
     }
   }, [isInitialized, serverUrl, isChecked, checkExistingSession]);
+
+  // Push notification sync on restored or active session
+  useEffect(() => {
+    if (user && serverUrl) {
+      registerDevicePushPipeline().catch((err) => {
+        console.warn("Push token sync failed:", err);
+      });
+    }
+  }, [user, serverUrl]);
 
   // Loading state while initializing
   if (!isInitialized) {
