@@ -3,7 +3,7 @@
  * Maps 1:1 to the Mailflare web API routes discovered in STEP 1.
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import apiClient from "./client";
 import type {
   AuthMeResponse,
@@ -106,6 +106,29 @@ export function useMessages(params?: MessagesQueryParams) {
   });
 }
 
+export function useInfiniteMessages(params?: Omit<MessagesQueryParams, "offset">) {
+  const limit = params?.limit ?? 25;
+  return useInfiniteQuery({
+    queryKey: ["messages", "infinite", params],
+    queryFn: async ({ pageParam = 0 }) => {
+      const { data } = await apiClient.get<MessagesResponse>("/api/messages", {
+        params: {
+          ...params,
+          limit,
+          offset: pageParam,
+        },
+      });
+      return data;
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      const nextOffset = lastPage.offset + lastPage.limit;
+      return nextOffset < lastPage.total ? nextOffset : undefined;
+    },
+    staleTime: 30 * 1000,
+  });
+}
+
 export function useMessageDetail(messageId: string) {
   return useQuery({
     queryKey: queryKeys.messageDetail(messageId),
@@ -118,6 +141,8 @@ export function useMessageDetail(messageId: string) {
     enabled: !!messageId,
   });
 }
+
+export const useEmailDetail = useMessageDetail;
 
 export function useMessageCounts(mailboxId?: string) {
   return useQuery({
@@ -206,6 +231,7 @@ export function useSendEmail() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages"] });
+      queryClient.invalidateQueries({ queryKey: ["messages", "counts"] });
     },
   });
 }

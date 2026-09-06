@@ -91,6 +91,7 @@ export interface Mailbox {
   type: "personal" | "shared";
   disabled: boolean;
   createdAt: string;
+  hostname?: string;
 }
 
 export interface MailboxesResponse {
@@ -198,8 +199,9 @@ export interface MessageAttachment {
 
 export interface MessageDetailResponse {
   message: Message;
-  body: MessageBody;
+  body: MessageBody | null;
   attachments: MessageAttachment[];
+  unsubscribeUrl?: string | null;
 }
 
 // --- Message Actions ---
@@ -323,3 +325,35 @@ export interface DeviceRegisterRequest {
 export interface DeviceRevokeRequest {
   token: string;
 }
+
+// --- Navigation & Folders ---
+
+export type SystemFolderType =
+  | "inbox"
+  | "sent"
+  | "drafts"
+  | "archived"
+  | "spam"
+  | "trash";
+
+export type RootStackParamList = {
+  Inbox: {
+    folderId?: string;
+    folderName?: string;
+    status?: string;
+    direction?: "inbound" | "outbound";
+    mailboxId?: string;
+  } | undefined;
+  MessageDetail: {
+    messageId: string;
+  };
+  Compose: {
+    draftId?: string;
+    replyTo?: {
+      to: string;
+      subject: string;
+      body?: string;
+      mailboxId?: string;
+    };
+  } | undefined;
+};

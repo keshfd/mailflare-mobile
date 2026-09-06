@@ -1,22 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { useAppConfigStore } from "./src/stores/appConfigStore";
 import { useAuthStore } from "./src/stores/authStore";
-import { resolveBaseUrl, isBaseUrlLocked, getEnvBaseUrl } from "./src/config/baseUrl";
-import { getSessionToken } from "./src/utils/tokenStorage";
+import { resolveBaseUrl, getEnvBaseUrl } from "./src/config/baseUrl";
 import { useAuth } from "./src/hooks/useAuth";
 import {
   usePushNotifications,
   registerDevicePushPipeline,
 } from "./src/hooks/usePushNotifications";
+import type { RootStackParamList } from "./src/types";
 
 // Screens
 import ServerSetupScreen from "./src/screens/ServerSetupScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import InboxScreen from "./src/screens/InboxScreen";
+import MessageDetailScreen from "./src/screens/MessageDetailScreen";
+import ComposeScreen from "./src/screens/ComposeScreen";
 
 // Create a single QueryClient instance
 const queryClient = new QueryClient({
@@ -29,11 +35,39 @@ const queryClient = new QueryClient({
   },
 });
 
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function MainNavigator() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Inbox"
+        screenOptions={{
+          headerShown: false,
+          animation: "slide_from_right",
+          contentStyle: { backgroundColor: "#0a0a0f" },
+        }}
+      >
+        <Stack.Screen name="Inbox" component={InboxScreen} />
+        <Stack.Screen name="MessageDetail" component={MessageDetailScreen} />
+        <Stack.Screen
+          name="Compose"
+          component={ComposeScreen}
+          options={{
+            presentation: "modal",
+            animation: "slide_from_bottom",
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
 /**
  * AppContent — The main app shell that handles the three-phase flow:
  * 1. Server Setup (if no URL configured)
  * 2. Authentication (if not logged in)
- * 3. Main App (authenticated)
+ * 3. Main App (authenticated navigation stack)
  */
 function AppContent() {
   const {
@@ -110,8 +144,8 @@ function AppContent() {
     return <LoginScreen />;
   }
 
-  // Phase 3: Authenticated → show main app
-  return <InboxScreen />;
+  // Phase 3: Authenticated → show main navigation stack
+  return <MainNavigator />;
 }
 
 /**
@@ -119,12 +153,14 @@ function AppContent() {
  */
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <View style={styles.root}>
-        <StatusBar style="light" />
-        <AppContent />
-      </View>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <StatusBar style="light" />
+          <AppContent />
+        </QueryClientProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

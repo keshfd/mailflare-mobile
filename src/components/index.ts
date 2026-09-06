@@ -1,7 +1,8 @@
-/**
- * Reusable UI components barrel export.
- * Components will be implemented in Phase 2.
- */
+export { default as EmailListItem } from "./EmailListItem";
+export type { EmailListItemProps } from "./EmailListItem";
 
-// Placeholder exports — will be populated as components are built
-export {};
+export { default as AttachmentList } from "./AttachmentList";
+export type { AttachmentListProps } from "./AttachmentList";
+
+export { default as FolderDrawer } from "./FolderDrawer";
+export type { FolderDrawerProps } from "./FolderDrawer";
