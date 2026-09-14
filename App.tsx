@@ -1,10 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  type NavigationContainerRef,
+} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { useAppConfigStore } from "./src/stores/appConfigStore";
@@ -37,9 +40,20 @@ const queryClient = new QueryClient({
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function MainNavigator() {
+/**
+ * MainNavigator receives the navigation container ref from AppContent so
+ * that the push notification hook can deep-link into screens — even on
+ * cold start when the navigation tree isn't mounted yet.
+ */
+function MainNavigator({
+  navigationRef,
+  onNavigationReady,
+}: {
+  navigationRef: React.RefObject<NavigationContainerRef<RootStackParamList> | null>;
+  onNavigationReady: () => void;
+}) {
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef} onReady={onNavigationReady}>
       <Stack.Navigator
         initialRouteName="Inbox"
         screenOptions={{
@@ -80,7 +94,18 @@ function AppContent() {
 
   const { user, isChecked } = useAuthStore();
   const { checkExistingSession } = useAuth();
-  usePushNotifications();
+
+  // Navigation ref shared with usePushNotifications for deep linking
+  const navigationRef =
+    useRef<NavigationContainerRef<RootStackParamList> | null>(null);
+
+  // Pass the navigation ref to the push hook so it can deep-link on tap
+  const pushState = usePushNotifications(navigationRef);
+  const onNavigationReady = (
+    pushState as ReturnType<typeof usePushNotifications> & {
+      onNavigationReady: () => void;
+    }
+  ).onNavigationReady;
 
   // Phase 1: Resolve the server URL on startup
   useEffect(() => {
@@ -145,7 +170,12 @@ function AppContent() {
   }
 
   // Phase 3: Authenticated → show main navigation stack
-  return <MainNavigator />;
+  return (
+    <MainNavigator
+      navigationRef={navigationRef}
+      onNavigationReady={onNavigationReady}
+    />
+  );
 }
 
 /**

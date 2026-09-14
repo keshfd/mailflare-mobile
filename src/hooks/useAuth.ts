@@ -3,6 +3,7 @@ import { useAuthStore } from "../stores/authStore";
 import { useAppConfigStore } from "../stores/appConfigStore";
 import { useLogin as useLoginMutation, useLogout as useLogoutMutation, useAuthMe } from "../api/queries";
 import { storeSessionToken, getSessionToken, clearSessionToken } from "../utils/tokenStorage";
+import { clearBadge } from "../utils/badgeSync";
 import {
   registerDevicePushPipeline,
   revokePushTokenFromServer,
@@ -153,6 +154,7 @@ export function useAuth() {
       // Continue with local logout even if API call fails
     } finally {
       await clearSessionToken();
+      await clearBadge();
       storeLogout();
     }
   }, [logoutMutation, storeLogout]);

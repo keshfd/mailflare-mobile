@@ -5,6 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import apiClient from "./client";
+import { syncBadgeWithUnreadCount, decrementBadge } from "../utils/badgeSync";
 import type {
   AuthMeResponse,
   LoginRequest,
@@ -151,6 +152,12 @@ export function useMessageCounts(mailboxId?: string) {
       const { data } = await apiClient.get<MessageCountsResponse>("/api/messages/counts", {
         params: mailboxId ? { mailboxId } : undefined,
       });
+
+      // Sync the OS badge with the server-reported inbox unread count
+      if (data?.counts?.inbox) {
+        syncBadgeWithUnreadCount(data.counts.inbox.unread).catch(() => {});
+      }
+
       return data;
     },
     staleTime: 30 * 1000,
@@ -173,6 +180,9 @@ export function useMarkAsRead() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages"] });
+
+      // Decrement the OS badge count since user just read a message
+      decrementBadge().catch(() => {});
     },
   });
 }
