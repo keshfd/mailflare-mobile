@@ -1,0 +1,93 @@
+name: EAS Build & CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Target platform for EAS Build"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - android
+          - ios
+      profile:
+        description: "EAS build profile"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - development
+          - production
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # --------------------------------------------------------------------------
+  # 1. Quality Gate: Validate types and code health before triggering cloud builds
+  # --------------------------------------------------------------------------
+  typecheck:
+    name: TypeScript Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript typecheck
+        run: npx tsc --noEmit
+
+  # --------------------------------------------------------------------------
+  # 2. Automated EAS Build: Trigger preview builds on push to main or dispatch
+  # --------------------------------------------------------------------------
+  eas-build:
+    name: Trigger EAS Build
+    needs: typecheck
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Set up Expo & EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build with EAS
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PUBLIC_MAILFLARE_API_URL: ${{ secrets.EXPO_PUBLIC_MAILFLARE_API_URL }}
+        run: |
+          BUILD_PROFILE="${{ github.event.inputs.profile || 'preview' }}"
+          TARGET_PLATFORM="${{ github.event.inputs.platform || 'all' }}"
+          echo "Triggering EAS build on platform: $TARGET_PLATFORM with profile: $BUILD_PROFILE"
+          eas build --platform "$TARGET_PLATFORM" --profile "$BUILD_PROFILE" --non-interactive --no-wait

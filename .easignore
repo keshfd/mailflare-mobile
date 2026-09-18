@@ -50,10 +50,5 @@ coverage
 # TypeScript cache
 *.tsbuildinfo
 
-# Generated native folders
-/ios
-/android
-
-# Firebase & Android Credentials
-google-services.json
-!google-services.json.example
+# Note: google-services.json is intentionally NOT ignored here so that
+# EAS builds have access to the local Firebase configuration without committing it to Git.

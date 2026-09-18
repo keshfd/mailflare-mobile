@@ -6,3 +6,6 @@ export type { AttachmentListProps } from "./AttachmentList";
 
 export { default as FolderDrawer } from "./FolderDrawer";
 export type { FolderDrawerProps } from "./FolderDrawer";
+
+export { default as ErrorBoundaryFallback } from "./ErrorBoundaryFallback";
+export { default as ToastContainer } from "./Toast";

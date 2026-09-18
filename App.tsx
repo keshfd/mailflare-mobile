@@ -1,7 +1,11 @@
 import React, { useEffect, useRef } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ErrorBoundary } from "react-error-boundary";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
@@ -20,6 +24,9 @@ import {
 } from "./src/hooks/usePushNotifications";
 import type { RootStackParamList } from "./src/types";
 
+// Components & Resilience Fallbacks
+import { ErrorBoundaryFallback, ToastContainer } from "./src/components";
+
 // Screens
 import ServerSetupScreen from "./src/screens/ServerSetupScreen";
 import LoginScreen from "./src/screens/LoginScreen";
@@ -27,13 +34,25 @@ import InboxScreen from "./src/screens/InboxScreen";
 import MessageDetailScreen from "./src/screens/MessageDetailScreen";
 import ComposeScreen from "./src/screens/ComposeScreen";
 
-// Create a single QueryClient instance
+// Create offline cache persister using AsyncStorage
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+  key: "MAILFLARE_OFFLINE_CACHE",
+  throttleTime: 1000,
+});
+
+// Configure QueryClient with 24-hour offline cache retention and offlineFirst networkMode
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
       staleTime: 30 * 1000,
+      gcTime: 24 * 60 * 60 * 1000, // 24 hours offline cache retention
+      networkMode: "offlineFirst",
       refetchOnWindowFocus: false,
+    },
+    mutations: {
+      networkMode: "offlineFirst",
     },
   },
 });
@@ -169,26 +188,37 @@ function AppContent() {
     return <LoginScreen />;
   }
 
-  // Phase 3: Authenticated → show main navigation stack
+  // Phase 3: Authenticated → show main navigation stack wrapped in ErrorBoundary
   return (
-    <MainNavigator
-      navigationRef={navigationRef}
-      onNavigationReady={onNavigationReady}
-    />
+    <ErrorBoundary FallbackComponent={ErrorBoundaryFallback}>
+      <MainNavigator
+        navigationRef={navigationRef}
+        onNavigationReady={onNavigationReady}
+      />
+    </ErrorBoundary>
   );
 }
 
 /**
- * Root App component with providers.
+ * Root App component with resilience, offline persister, error boundary, and toast notifications.
  */
 export default function App() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <StatusBar style="light" />
-          <AppContent />
-        </QueryClientProvider>
+        <ErrorBoundary FallbackComponent={ErrorBoundaryFallback}>
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{
+              persister: asyncStoragePersister,
+              maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            }}
+          >
+            <StatusBar style="light" />
+            <AppContent />
+            <ToastContainer />
+          </PersistQueryClientProvider>
+        </ErrorBoundary>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

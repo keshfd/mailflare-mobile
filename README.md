@@ -65,17 +65,41 @@ To utilize the automated pipeline:
    npm install
    ```
 
-3. **Configure your brand:**
-   Edit `brand.config.js` with your company name, bundle ID, and brand colors.
+3. **Configure Android Push Notifications (Firebase):**
+   Standalone Android builds (APKs and AABs) require Google Firebase Cloud Messaging (FCM):
+   * Create a project in the [Firebase Console](https://console.firebase.google.com/).
+   * Register an Android app using your package name (`co.mailflare.app` as defined in `app.json`).
+   * Download `google-services.json` and place it in the project root:
+     ```bash
+     cp google-services.json.example google-services.json
+     # Replace dummy values with your actual Firebase config
+     ```
+     *(Note: `google-services.json` is ignored by git to protect your credentials; EAS Cloud builds use `.easignore` to include it safely during cloud compilation).*
+   * In Firebase Console (**Project Settings → Service accounts**), generate a private key and register it in EAS:
+     ```bash
+     npx eas-cli credentials
+     ```
+     Select **Android → Preview/Production → Push Notifications → Set up Google Service Account Key**.
 
-4. **Start the local development server:**
+4. **Configure your Mailflare API endpoint:**
+   Provide your backend URL in `eas.json` or via an `.env` file:
+   ```bash
+   EXPO_PUBLIC_MAILFLARE_API_URL="https://your-mailflare-instance.workers.dev"
+   ```
+
+5. **Start the local development server:**
    ```bash
    npx expo start
    ```
 
-5. **Run a production build:**
+6. **Build for testing or production:**
    ```bash
-   eas build --profile production --platform all
+   # Cloud Preview APK for Android (sideloadable test build)
+   npm run build:android
+
+   # Production store packages (Android .aab & iOS .ipa)
+   npm run build:android:prod
+   npm run build:ios:prod
    ```
 
 ## 📜 License

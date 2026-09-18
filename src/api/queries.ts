@@ -6,6 +6,9 @@
 import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import apiClient from "./client";
 import { syncBadgeWithUnreadCount, decrementBadge } from "../utils/badgeSync";
+import { toast } from "../stores/toastStore";
+
+const OFFLINE_CACHE_TIME = 24 * 60 * 60 * 1000; // 24 hours offline cache retention
 import type {
   AuthMeResponse,
   LoginRequest,
@@ -104,6 +107,7 @@ export function useMessages(params?: MessagesQueryParams) {
       return data;
     },
     staleTime: 30 * 1000, // 30 seconds
+    gcTime: OFFLINE_CACHE_TIME,
   });
 }
 
@@ -127,6 +131,7 @@ export function useInfiniteMessages(params?: Omit<MessagesQueryParams, "offset">
       return nextOffset < lastPage.total ? nextOffset : undefined;
     },
     staleTime: 30 * 1000,
+    gcTime: OFFLINE_CACHE_TIME,
   });
 }
 
@@ -140,6 +145,8 @@ export function useMessageDetail(messageId: string) {
       return data;
     },
     enabled: !!messageId,
+    staleTime: 60 * 1000,
+    gcTime: OFFLINE_CACHE_TIME,
   });
 }
 
@@ -224,6 +231,11 @@ export function useBulkMessageAction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages"] });
     },
+    onError: (err: any) => {
+      if (err?.code !== "ECONNABORTED" && !err?.message?.toLowerCase().includes("timeout")) {
+        toast.error(err?.response?.data?.message || "Failed to update messages", "Action Error");
+      }
+    },
   });
 }
 
@@ -288,6 +300,7 @@ export function useMailboxes() {
       return data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: OFFLINE_CACHE_TIME,
   });
 }
 
@@ -305,6 +318,8 @@ export function useFolders(mailboxId?: string) {
       return data;
     },
     enabled: !!mailboxId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: OFFLINE_CACHE_TIME,
   });
 }
 
