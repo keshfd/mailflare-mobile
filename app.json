@@ -9,7 +9,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "co.mailflare.app",
-      "buildNumber": "4",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
@@ -18,8 +17,6 @@
     },
     "android": {
       "package": "co.mailflare.app",
-      "googleServicesFile": "./google-services.json",
-      "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#0a0a0f",
         "foregroundImage": "./assets/android-icon-foreground.png",

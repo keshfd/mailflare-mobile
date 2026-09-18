@@ -12,12 +12,12 @@ on:
       platform:
         description: "Target platform for EAS Build"
         required: true
-        default: "all"
+        default: "android"
         type: choice
         options:
-          - all
           - android
           - ios
+          - all
       profile:
         description: "EAS build profile"
         required: true
@@ -83,12 +83,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore google-services.json (if provided via GitHub Secret)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" > google-services.json
+            echo "Successfully restored google-services.json from GitHub secret."
+          else
+            echo "No GOOGLE_SERVICES_JSON secret found in GitHub; relying on EAS File Environment Variable."
+          fi
+
       - name: Build with EAS
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_PUBLIC_MAILFLARE_API_URL: ${{ secrets.EXPO_PUBLIC_MAILFLARE_API_URL }}
         run: |
           BUILD_PROFILE="${{ github.event.inputs.profile || 'preview' }}"
-          TARGET_PLATFORM="${{ github.event.inputs.platform || 'all' }}"
+          TARGET_PLATFORM="${{ github.event.inputs.platform || 'android' }}"
           echo "Triggering EAS build on platform: $TARGET_PLATFORM with profile: $BUILD_PROFILE"
           eas build --platform "$TARGET_PLATFORM" --profile "$BUILD_PROFILE" --non-interactive --no-wait

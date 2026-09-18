@@ -27,6 +27,7 @@ To enable the automated build workflow located at `.github/workflows/eas-build.y
 | :--- | :--- | :--- |
 | **`EXPO_TOKEN`** | **Yes** | Personal Access Token generated from [expo.dev/settings/access-tokens](https://expo.dev/settings/access-tokens). Grants the GitHub Actions runner permission to authenticate and dispatch builds. |
 | **`EXPO_PUBLIC_MAILFLARE_API_URL`** | No | Optional API URL override (e.g. `https://mailflare.example.com`). Injected at build time. |
+| **`GOOGLE_SERVICES_JSON`** | Recommended | Raw Firebase configuration JSON. If provided in GitHub Secrets, CI restores `google-services.json` on the runner. (Alternatively, configure directly in EAS via `npx eas-cli env:set --name GOOGLE_SERVICES_JSON --type file --value ./google-services.json`). |
 
 ### Workflow Triggers:
 1. **Pushes to `main`**: Automatically validates TypeScript (`npx tsc --noEmit`) and triggers a non-blocking `preview` build on EAS Cloud.

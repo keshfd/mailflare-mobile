@@ -74,7 +74,14 @@ To utilize the automated pipeline:
      cp google-services.json.example google-services.json
      # Replace dummy values with your actual Firebase config
      ```
-     *(Note: `google-services.json` is ignored by git to protect your credentials; EAS Cloud builds use `.easignore` to include it safely during cloud compilation).*
+     *(Note: `google-services.json` is git-ignored to protect your credentials. For EAS Cloud builds, provide it securely via EAS environment variables).*
+   * **Upload to EAS Cloud Builds (Required for EAS & CI):**
+     Upload your `google-services.json` directly to EAS as a file environment variable:
+     ```bash
+     npx eas-cli env:set --name GOOGLE_SERVICES_JSON --type file --value ./google-services.json
+     ```
+     *(Or upload via [Expo Dashboard](https://expo.dev) under **Project Settings → Environment Variables** with Type: **File**). `app.config.js` automatically routes EAS Cloud builds to this injected file.*
+     *(Alternatively, you can paste the file content into a GitHub Repository Secret named `GOOGLE_SERVICES_JSON` to let CI restore it before build dispatch).*
    * In Firebase Console (**Project Settings → Service accounts**), generate a private key and register it in EAS:
      ```bash
      npx eas-cli credentials
@@ -113,6 +120,58 @@ To utilize the automated pipeline:
 
    # Production store packages (Android .aab & iOS .ipa)
    npm run build:android:prod
+   npm run build:ios:prod
+   ```
+
+## 🍏 How to Enable iOS Builds (When Ready)
+
+By default, automated GitHub Actions CI builds target Android (`.apk`) so that test packages can be built immediately without requiring a paid Apple Developer membership.
+
+When you are ready to produce iOS builds, you have two options:
+
+### Option A: Simulator Builds (No Apple Developer Account Required)
+To generate an iOS test build that runs inside the macOS iOS Simulator without needing Apple code-signing certificates:
+1. In `eas.json`, set `"simulator": true` under the `preview.ios` profile:
+   ```json
+   "preview": {
+     "distribution": "internal",
+     "ios": {
+       "simulator": true
+     }
+   }
+   ```
+2. Trigger the preview build:
+   ```bash
+   npm run build:ios
+   ```
+   *Output*: Generates a `.tar.gz` archive containing the `.app` bundle. Extract and drag it onto any macOS iOS Simulator.
+
+### Option B: Physical Device / Internal Ad-Hoc Builds (Requires Apple Developer Account)
+Building for physical iPhones requires an active Apple Developer Program membership ($99/year) to generate code-signing certificates and provisioning profiles:
+
+1. **Set Up Credentials Interactively Once:**
+   Run the interactive credential manager in your local terminal:
+   ```bash
+   npx eas-cli credentials
+   ```
+   * Select platform: **iOS**
+   * Select build profile: **preview** (or **production**)
+   * When prompted `Do you want to log in to your Apple account?`, select **yes** and authenticate with your Apple ID.
+   * EAS will automatically create and register your Distribution Certificate and Ad-Hoc Provisioning Profile on the Apple Developer Portal and store them securely in the Expo Cloud.
+
+2. **Trigger the Cloud Build:**
+   Once credentials are saved on Expo servers, non-interactive builds (including GitHub Actions) will build cleanly:
+   ```bash
+   # Via npm script
+   npm run build:ios
+
+   # Via GitHub Actions
+   Go to the "Actions" tab → Select "EAS Build & CI Pipeline" → Click "Run workflow" → Choose platform: "ios" (or "all").
+   ```
+
+3. **Production App Store Releases:**
+   When you are ready to publish to TestFlight or the App Store, configure credentials for the `production` profile:
+   ```bash
    npm run build:ios:prod
    ```
 
