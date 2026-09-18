@@ -82,10 +82,24 @@ To utilize the automated pipeline:
      Select **Android → Preview/Production → Push Notifications → Set up Google Service Account Key**.
 
 4. **Configure your Mailflare API endpoint:**
-   Provide your backend URL in `eas.json` or via an `.env` file:
-   ```bash
-   EXPO_PUBLIC_MAILFLARE_API_URL="https://your-mailflare-instance.workers.dev"
-   ```
+
+   * **Local Development:**
+     Copy `.env.example` to create a local `.env` file:
+     ```bash
+     cp .env.example .env
+     ```
+     Open `.env` and specify your deployed Cloudflare Worker URL:
+     ```bash
+     EXPO_PUBLIC_MAILFLARE_API_URL="https://your-mailflare-instance.workers.dev"
+     ```
+     *(Note: Variables prefixed with `EXPO_PUBLIC_` are automatically bundled by Expo at runtime. If omitted, the app will prompt for the server address on first launch).*
+
+   * **EAS Cloud Builds (Preview & Production):**
+     Because `.env` files are git-ignored and eas-ignored for security, set the environment variable directly in Expo Application Services (EAS):
+     ```bash
+     npx eas-cli env:create --name EXPO_PUBLIC_MAILFLARE_API_URL --value "https://your-mailflare-instance.workers.dev" --type string
+     ```
+     Alternatively, configure it via the [Expo Dashboard](https://expo.dev) under **Your Project → Configuration → Environment Variables**. You can scope this variable across all environments (`development`, `preview`, `production`) or configure distinct backend URLs per environment.
 
 5. **Start the local development server:**
    ```bash

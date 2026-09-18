@@ -12,9 +12,6 @@
       },
       "ios": {
         "simulator": true
-      },
-      "env": {
-        "EXPO_PUBLIC_MAILFLARE_API_URL": "https://your-mailflare-instance.workers.dev"
       }
     },
     "preview": {
@@ -24,9 +21,6 @@
       },
       "ios": {
         "simulator": false
-      },
-      "env": {
-        "EXPO_PUBLIC_MAILFLARE_API_URL": "https://your-mailflare-instance.workers.dev"
       }
     },
     "production": {
@@ -35,9 +29,6 @@
       },
       "ios": {
         "simulator": false
-      },
-      "env": {
-        "EXPO_PUBLIC_MAILFLARE_API_URL": "https://your-mailflare-instance.workers.dev"
       }
     }
   },
