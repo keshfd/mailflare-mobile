@@ -8,7 +8,6 @@ import {
   ScrollView,
   ActivityIndicator,
   SafeAreaView,
-  StatusBar,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -167,8 +166,6 @@ export default function ComposeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0a0a0f" />
-
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
-  StatusBar,
   Alert,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -216,8 +215,6 @@ export default function MessageDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0a0a0f" />
-
       {/* Top Header Actions */}
       <View style={styles.header}>
         <TouchableOpacity

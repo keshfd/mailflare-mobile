@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  StatusBar,
 } from "react-native";
 import type { FallbackProps } from "react-error-boundary";
 import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp, Bug } from "lucide-react-native";
@@ -29,7 +28,6 @@ export default function ErrorBoundaryFallback({
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0a0a0f" />
       <View style={styles.content}>
         {/* Warning Icon Badge */}
         <View style={styles.iconContainer}>

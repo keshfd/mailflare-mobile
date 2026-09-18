@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import * as SplashScreen from "expo-splash-screen";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
@@ -33,6 +34,11 @@ import LoginScreen from "./src/screens/LoginScreen";
 import InboxScreen from "./src/screens/InboxScreen";
 import MessageDetailScreen from "./src/screens/MessageDetailScreen";
 import ComposeScreen from "./src/screens/ComposeScreen";
+
+// Prevent the native splash screen from auto-hiding before state is ready
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* reloading the app might cause some issues with preventing auto hide */
+});
 
 // Create offline cache persister using AsyncStorage
 const asyncStoragePersister = createAsyncStoragePersister({
@@ -160,27 +166,25 @@ function AppContent() {
     }
   }, [user, serverUrl]);
 
-  // Loading state while initializing
-  if (!isInitialized) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-      </View>
-    );
+  // Check readiness to dismiss the native splash screen:
+  // - Either server URL is missing (ready to display ServerSetupScreen)
+  // - Or server URL is set and auth session check has completed (ready for Login or Inbox)
+  const isAppReady = isInitialized && (!serverUrl || isChecked);
+
+  useEffect(() => {
+    if (isAppReady) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [isAppReady]);
+
+  // Keep dark background rendered while native splash screen covers initialization
+  if (!isAppReady) {
+    return <View style={styles.loading} />;
   }
 
   // Phase 1: No server URL → show ServerSetup
   if (!serverUrl) {
     return <ServerSetupScreen />;
-  }
-
-  // Loading state while checking session
-  if (!isChecked) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-      </View>
-    );
   }
 
   // Phase 2: Not authenticated → show Login

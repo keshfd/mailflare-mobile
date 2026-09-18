@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   RefreshControl,
   SafeAreaView,
-  StatusBar,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -216,8 +215,6 @@ export default function InboxScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0a0a0f" />
-
       {/* Top Header Bar */}
       <View style={styles.header}>
         <TouchableOpacity

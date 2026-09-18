@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { validateServerUrl, setStoredBaseUrl } from "../config/baseUrl";
 import { useAppConfigStore } from "../stores/appConfigStore";
 
@@ -56,45 +57,47 @@ export default function ServerSetupScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome to Mailflare</Text>
-        <Text style={styles.subtitle}>
-          Enter the URL of your Mailflare server to get started.
-        </Text>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.content}>
+          <Text style={styles.title}>Welcome to Mailflare</Text>
+          <Text style={styles.subtitle}>
+            Enter the URL of your Mailflare server to get started.
+          </Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="https://mail.example.com"
-          placeholderTextColor="#666"
-          value={url}
-          onChangeText={setUrl}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="url"
-          returnKeyType="go"
-          onSubmitEditing={handleConnect}
-          editable={!isValidating}
-        />
+          <TextInput
+            style={styles.input}
+            placeholder="https://mail.example.com"
+            placeholderTextColor="#666"
+            value={url}
+            onChangeText={setUrl}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+            returnKeyType="go"
+            onSubmitEditing={handleConnect}
+            editable={!isValidating}
+          />
 
-        {error && <Text style={styles.error}>{error}</Text>}
+          {error && <Text style={styles.error}>{error}</Text>}
 
-        <TouchableOpacity
-          style={[styles.button, isValidating && styles.buttonDisabled]}
-          onPress={handleConnect}
-          disabled={isValidating}
-        >
-          {isValidating ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Connect</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          <TouchableOpacity
+            style={[styles.button, isValidating && styles.buttonDisabled]}
+            onPress={handleConnect}
+            disabled={isValidating}
+          >
+            {isValidating ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Connect</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -102,6 +105,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0a0a0f",
+  },
+  keyboardContainer: {
+    flex: 1,
   },
   content: {
     flex: 1,
