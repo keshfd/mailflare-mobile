@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -22,8 +22,10 @@ import {
   Mail,
   CheckCircle2,
   AlertCircle,
+  FileEdit,
 } from "lucide-react-native";
 import { useMailboxes, useSendEmail } from "../api/queries";
+import { useDraftStore } from "../stores/draftStore";
 import type { RootStackParamList, Mailbox } from "../types";
 
 type ComposeRouteProp = RouteProp<RootStackParamList, "Compose">;
@@ -34,10 +36,16 @@ type ComposeNavProp = NativeStackNavigationProp<
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/** Debounce delay for auto-saving drafts (ms). */
+const DRAFT_SAVE_DELAY = 500;
+
 export default function ComposeScreen() {
   const route = useRoute<ComposeRouteProp>();
   const navigation = useNavigation<ComposeNavProp>();
   const replyTo = route.params?.replyTo;
+
+  // Draft store
+  const { draft: savedDraft, saveDraft, clearDraft } = useDraftStore();
 
   // Mailboxes
   const { data: mailboxesData } = useMailboxes();
@@ -52,6 +60,9 @@ export default function ComposeScreen() {
   const [subject, setSubject] = useState(replyTo?.subject || "");
   const [body, setBody] = useState(replyTo?.body || "");
 
+  // Whether we restored a draft
+  const [draftRestored, setDraftRestored] = useState(false);
+
   // Mailbox picker modal / dropdown state
   const [mailboxDropdownOpen, setMailboxDropdownOpen] = useState(false);
 
@@ -64,12 +75,77 @@ export default function ComposeScreen() {
   // Send email mutation
   const sendEmailMutation = useSendEmail();
 
+  // Draft auto-save timer ref
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Track if this is the initial mount (to restore draft)
+  const hasHydratedRef = useRef(false);
+
+  // Restore saved draft on mount (only if no replyTo params)
+  useEffect(() => {
+    if (hasHydratedRef.current) return;
+    hasHydratedRef.current = true;
+
+    if (!replyTo && savedDraft) {
+      setTo(savedDraft.to);
+      setCc(savedDraft.cc);
+      setBcc(savedDraft.bcc);
+      setSubject(savedDraft.subject);
+      setBody(savedDraft.body);
+      if (savedDraft.cc || savedDraft.bcc) {
+        setShowCcBcc(true);
+      }
+      setDraftRestored(true);
+
+      // Auto-dismiss the restored banner after 3 seconds
+      setTimeout(() => setDraftRestored(false), 3000);
+    }
+  }, [replyTo, savedDraft]);
+
+  // Auto-save draft on field changes (debounced)
+  const debouncedSaveDraft = useCallback(() => {
+    if (draftTimerRef.current) {
+      clearTimeout(draftTimerRef.current);
+    }
+    draftTimerRef.current = setTimeout(() => {
+      // Only save if there's meaningful content
+      if (to.trim() || subject.trim() || body.trim()) {
+        saveDraft({
+          to,
+          cc,
+          bcc,
+          subject,
+          body,
+          mailboxId: selectedMailbox?.id ?? null,
+        });
+      }
+    }, DRAFT_SAVE_DELAY);
+  }, [to, cc, bcc, subject, body, selectedMailbox, saveDraft]);
+
+  useEffect(() => {
+    debouncedSaveDraft();
+    return () => {
+      if (draftTimerRef.current) {
+        clearTimeout(draftTimerRef.current);
+      }
+    };
+  }, [debouncedSaveDraft]);
+
   // Pick initial mailbox
   useEffect(() => {
     if (mailboxes.length === 0) return;
 
     if (replyTo?.mailboxId) {
       const match = mailboxes.find((m) => m.id === replyTo.mailboxId);
+      if (match) {
+        setSelectedMailbox(match);
+        return;
+      }
+    }
+
+    // Try to match saved draft mailbox
+    if (savedDraft?.mailboxId && !replyTo) {
+      const match = mailboxes.find((m) => m.id === savedDraft.mailboxId);
       if (match) {
         setSelectedMailbox(match);
         return;
@@ -143,6 +219,9 @@ export default function ComposeScreen() {
         mailboxId: selectedMailbox.id,
       });
 
+      // Clear the saved draft on successful send
+      clearDraft();
+
       setStatusMessage({
         type: "success",
         text: "Email sent successfully",
@@ -202,6 +281,14 @@ export default function ComposeScreen() {
             )}
           </TouchableOpacity>
         </View>
+
+        {/* Draft Restored Banner */}
+        {draftRestored && (
+          <View style={styles.draftBanner}>
+            <FileEdit size={14} color="#60a5fa" style={{ marginRight: 8 }} />
+            <Text style={styles.draftBannerText}>Draft recovered</Text>
+          </View>
+        )}
 
         {/* Status Toast Banner */}
         {statusMessage && (
@@ -420,6 +507,23 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "600",
+  },
+  draftBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginHorizontal: 16,
+    marginTop: 10,
+    borderRadius: 8,
+    backgroundColor: "rgba(37, 99, 235, 0.12)",
+    borderWidth: 1,
+    borderColor: "rgba(59, 130, 246, 0.25)",
+  },
+  draftBannerText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#60a5fa",
   },
   statusBanner: {
     flexDirection: "row",

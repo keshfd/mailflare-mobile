@@ -7,6 +7,7 @@ import {
   Animated,
 } from "react-native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
+import * as Haptics from "expo-haptics";
 import {
   Trash2,
   Mail,
@@ -14,6 +15,7 @@ import {
   Paperclip,
   ArrowUpRight,
 } from "lucide-react-native";
+import SenderAvatar from "./SenderAvatar";
 import type { Message } from "../types";
 
 export interface EmailListItemProps {
@@ -133,10 +135,12 @@ export default function EmailListItem({
   const handleSwipeOpen = (direction: "left" | "right") => {
     swipeableRef.current?.close();
     if (direction === "left") {
-      // Swiped right -> toggle read/unread
+      // Swiped right -> toggle read/unread — Light haptic
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
       onToggleRead(message.id, !message.read);
     } else if (direction === "right") {
-      // Swiped left -> trash
+      // Swiped left -> trash — Medium haptic
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
       onTrash(message.id);
     }
   };
@@ -158,13 +162,10 @@ export default function EmailListItem({
           !message.read && styles.unreadContainer,
         ]}
       >
-        {/* Read/Unread Indicator Dot */}
-        <View style={styles.indicatorCol}>
-          {!message.read ? (
-            <View style={styles.unreadDot} />
-          ) : (
-            <View style={styles.readPlaceholder} />
-          )}
+        {/* Sender Avatar */}
+        <View style={styles.avatarCol}>
+          <SenderAvatar name={displayName} size={40} />
+          {!message.read && <View style={styles.unreadDot} />}
         </View>
 
         {/* Message Main Content */}
@@ -226,28 +227,30 @@ const styles = StyleSheet.create({
     backgroundColor: "#0d0e15",
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#1e202e",
+    alignItems: "flex-start",
   },
   unreadContainer: {
     backgroundColor: "#121422",
   },
-  indicatorCol: {
-    width: 14,
-    paddingTop: 6,
+  avatarCol: {
+    marginRight: 12,
     alignItems: "center",
+    marginTop: 2,
+    position: "relative",
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    position: "absolute",
+    top: -2,
+    right: -2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: "#3b82f6",
-  },
-  readPlaceholder: {
-    width: 8,
-    height: 8,
+    borderWidth: 2,
+    borderColor: "#0d0e15",
   },
   contentCol: {
     flex: 1,
-    marginLeft: 6,
   },
   headerRow: {
     flexDirection: "row",

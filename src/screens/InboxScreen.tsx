@@ -1,15 +1,14 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   RefreshControl,
   SafeAreaView,
 } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
@@ -17,7 +16,6 @@ import {
   Search,
   X,
   Plus,
-  Mail,
   RefreshCw,
   SlidersHorizontal,
 } from "lucide-react-native";
@@ -26,7 +24,12 @@ import {
   useMailboxes,
   useBulkMessageAction,
 } from "../api/queries";
-import { EmailListItem, FolderDrawer } from "../components";
+import {
+  EmailListItem,
+  FolderDrawer,
+  SkeletonEmailItem,
+  EmptyState,
+} from "../components";
 import type {
   RootStackParamList,
   SystemFolderType,
@@ -38,6 +41,9 @@ type InboxNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "Inbox"
 >;
+
+/** Number of skeleton placeholders to show during initial load. */
+const SKELETON_COUNT = 8;
 
 export default function InboxScreen() {
   const navigation = useNavigation<InboxNavigationProp>();
@@ -63,8 +69,31 @@ export default function InboxScreen() {
 
   // Search & Filter State
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState(""); // immediate for TextInput
+  const [debouncedSearch, setDebouncedSearch] = useState(""); // debounced for query
   const [unreadOnly, setUnreadOnly] = useState(false);
+
+  // Debounce search input by 300ms
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearchChange = useCallback((text: string) => {
+    setSearchInput(text);
+    if (searchTimerRef.current) {
+      clearTimeout(searchTimerRef.current);
+    }
+    searchTimerRef.current = setTimeout(() => {
+      setDebouncedSearch(text);
+    }, 300);
+  }, []);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimerRef.current) {
+        clearTimeout(searchTimerRef.current);
+      }
+    };
+  }, []);
 
   // Bulk actions mutation for swipe actions
   const bulkActionMutation = useBulkMessageAction();
@@ -122,8 +151,8 @@ export default function InboxScreen() {
       }
     }
 
-    if (searchQuery.trim()) {
-      params.q = searchQuery.trim();
+    if (debouncedSearch.trim()) {
+      params.q = debouncedSearch.trim();
     }
 
     if (unreadOnly) {
@@ -135,7 +164,7 @@ export default function InboxScreen() {
     activeMailboxId,
     activeCustomFolderId,
     activeSystemFolder,
-    searchQuery,
+    debouncedSearch,
     unreadOnly,
   ]);
 
@@ -213,6 +242,40 @@ export default function InboxScreen() {
 
   const isSentFolder = activeSystemFolder === "sent";
 
+  // Map folder to EmptyState type
+  const emptyStateType = useMemo(() => {
+    if (debouncedSearch.trim()) return "search" as const;
+    if (activeCustomFolderId) return "custom" as const;
+    return activeSystemFolder;
+  }, [debouncedSearch, activeCustomFolderId, activeSystemFolder]);
+
+  const emptyStateSubtitle = useMemo(() => {
+    if (debouncedSearch.trim()) return "No emails matched your search query.";
+    if (unreadOnly) return "You have no unread messages in this folder.";
+    return undefined; // use default from EmptyState
+  }, [debouncedSearch, unreadOnly]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchInput("");
+    setDebouncedSearch("");
+    if (searchTimerRef.current) {
+      clearTimeout(searchTimerRef.current);
+    }
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }: { item: Message }) => (
+      <EmailListItem
+        message={item}
+        onPress={handleMessagePress}
+        onTrash={handleTrash}
+        onToggleRead={handleToggleRead}
+        isSentFolder={isSentFolder}
+      />
+    ),
+    [handleMessagePress, handleTrash, handleToggleRead, isSentFolder]
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Top Header Bar */}
@@ -258,14 +321,15 @@ export default function InboxScreen() {
             style={styles.searchInput}
             placeholder="Search sender, subject, body..."
             placeholderTextColor="#64748b"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+            value={searchInput}
+            onChangeText={handleSearchChange}
             autoCapitalize="none"
             autoCorrect={false}
+            autoFocus
             returnKeyType="search"
           />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery("")}>
+          {searchInput.length > 0 && (
+            <TouchableOpacity onPress={handleClearSearch}>
               <X size={18} color="#94a3b8" />
             </TouchableOpacity>
           )}
@@ -295,26 +359,17 @@ export default function InboxScreen() {
 
       {/* Email Message List */}
       {isLoading && !isRefetching ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
-          <Text style={styles.loadingText}>Loading messages...</Text>
+        <View style={styles.skeletonContainer}>
+          {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+            <SkeletonEmailItem key={i} />
+          ))}
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={messages}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <EmailListItem
-              message={item}
-              onPress={handleMessagePress}
-              onTrash={handleTrash}
-              onToggleRead={handleToggleRead}
-              isSentFolder={isSentFolder}
-            />
-          )}
-          contentContainerStyle={
-            messages.length === 0 ? styles.emptyListContent : styles.listContent
-          }
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContentContainer}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}
@@ -332,24 +387,17 @@ export default function InboxScreen() {
           ListFooterComponent={
             isFetchingNextPage ? (
               <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color="#3b82f6" />
+                <SkeletonEmailItem />
               </View>
-            ) : null
+            ) : (
+              <View style={styles.listBottomSpacer} />
+            )
           }
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <View style={styles.emptyIconCircle}>
-                <Mail size={36} color="#475569" />
-              </View>
-              <Text style={styles.emptyTitle}>No messages here</Text>
-              <Text style={styles.emptySubtitle}>
-                {searchQuery
-                  ? "No emails matched your search query."
-                  : unreadOnly
-                  ? "You have no unread messages in this folder."
-                  : "Your folder is clean and up to date."}
-              </Text>
-            </View>
+            <EmptyState
+              type={emptyStateType}
+              subtitle={emptyStateSubtitle}
+            />
           }
         />
       )}
@@ -476,53 +524,17 @@ const styles = StyleSheet.create({
     color: "#60a5fa",
     fontWeight: "700",
   },
-  listContent: {
+  skeletonContainer: {
+    flex: 1,
+  },
+  listContentContainer: {
     paddingBottom: 90,
   },
-  emptyListContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: "#64748b",
-  },
   footerLoader: {
-    paddingVertical: 20,
-    alignItems: "center",
+    paddingVertical: 4,
   },
-  emptyContainer: {
-    alignItems: "center",
-    paddingHorizontal: 32,
-    paddingVertical: 48,
-  },
-  emptyIconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "#141624",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#ffffff",
-    marginBottom: 6,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    textAlign: "center",
-    lineHeight: 20,
+  listBottomSpacer: {
+    height: 90,
   },
   fab: {
     position: "absolute",
