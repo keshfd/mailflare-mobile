@@ -11,8 +11,13 @@
       "bundleIdentifier": "co.mailflare.app",
       "infoPlist": {
         "UIBackgroundModes": [
+          "fetch",
           "remote-notification"
-        ]
+        ],
+        "NSPhotoLibraryUsageDescription": "Allow Mailflare to access your photos to attach images to outgoing emails.",
+        "NSPhotoLibraryAddUsageDescription": "Allow Mailflare to save email attachments to your photo library.",
+        "UIFileSharingEnabled": true,
+        "LSSupportsOpeningDocumentsInPlace": true
       }
     },
     "android": {
@@ -23,7 +28,15 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "INTERNET",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "POST_NOTIFICATIONS",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "splash": {
       "image": "./assets/splash-icon.png",
