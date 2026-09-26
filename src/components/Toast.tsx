@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react-native";
 import { useToastStore, type ToastType } from "../stores/toastStore";
+import { themeColors } from "../config";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -55,7 +56,7 @@ function getToastTheme(type: ToastType) {
       return {
         borderColor: "rgba(59, 130, 246, 0.4)",
         iconBg: "rgba(59, 130, 246, 0.15)",
-        iconColor: "#3b82f6",
+        iconColor: themeColors.primary,
         IconComponent: Info,
       };
   }

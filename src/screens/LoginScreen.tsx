@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../hooks/useAuth";
+import { themeColors, brandName } from "../config";
 
 /**
  * LoginScreen — Authentication screen for email/password login.
@@ -48,7 +49,7 @@ export default function LoginScreen() {
         <View style={styles.content}>
           <Text style={styles.title}>Sign In</Text>
         <Text style={styles.subtitle}>
-          Log in to your Mailflare account
+          Log in to your {brandName} account
         </Text>
 
         <TextInput
@@ -98,7 +99,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0a0a0f",
+    backgroundColor: themeColors.background,
   },
   keyboardContainer: {
     flex: 1,
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: themeColors.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: "center",

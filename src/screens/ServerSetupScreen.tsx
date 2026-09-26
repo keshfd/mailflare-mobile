@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { validateServerUrl, setStoredBaseUrl } from "../config/baseUrl";
 import { useAppConfigStore } from "../stores/appConfigStore";
+import { themeColors, brandName } from "../config";
 
 /**
  * ServerSetupScreen — Shown when no Mailflare server URL is configured.
@@ -27,7 +28,7 @@ export default function ServerSetupScreen() {
   const handleConnect = async () => {
     const trimmed = url.trim();
     if (!trimmed) {
-      setError("Please enter your Mailflare server URL");
+      setError(`Please enter your ${brandName} server URL`);
       return;
     }
 
@@ -63,14 +64,14 @@ export default function ServerSetupScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Welcome to Mailflare</Text>
+          <Text style={styles.title}>Welcome to {brandName}</Text>
           <Text style={styles.subtitle}>
-            Enter the URL of your Mailflare server to get started.
+            Enter the URL of your {brandName} server to get started.
           </Text>
 
           <TextInput
             style={styles.input}
-            placeholder="https://mail.example.com"
+            placeholder="mail.example.com"
             placeholderTextColor="#666"
             value={url}
             onChangeText={setUrl}
@@ -104,7 +105,7 @@ export default function ServerSetupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0a0a0f",
+    backgroundColor: themeColors.background,
   },
   keyboardContainer: {
     flex: 1,
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   button: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: themeColors.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: "center",

@@ -31,6 +31,7 @@ import {
   useBulkMessageAction,
 } from "../api/queries";
 import { AttachmentList } from "../components";
+import { themeColors } from "../config";
 import type { RootStackParamList } from "../types";
 
 type MessageDetailRouteProp = RouteProp<
@@ -146,7 +147,7 @@ export default function MessageDetailScreen() {
           * { box-sizing: border-box; }
           body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0d0e15;
+            background-color: ${themeColors.surface};
             color: #e2e8f0;
             padding: 16px;
             margin: 0;
@@ -154,11 +155,11 @@ export default function MessageDetailScreen() {
             line-height: 1.6;
             word-break: break-word;
           }
-          a { color: #60a5fa; text-decoration: underline; }
+          a { color: ${themeColors.primaryLight}; text-decoration: underline; }
           img { max-width: 100% !important; height: auto !important; border-radius: 6px; }
           table { max-width: 100% !important; }
           blockquote {
-            border-left: 3px solid #3b82f6;
+            border-left: 3px solid ${themeColors.primary};
             margin: 12px 0;
             padding-left: 12px;
             color: #94a3b8;
@@ -183,7 +184,7 @@ export default function MessageDetailScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3b82f6" />
+          <ActivityIndicator size="large" color={themeColors.primary} />
           <Text style={styles.loadingText}>Loading message...</Text>
         </View>
       </SafeAreaView>
@@ -381,7 +382,7 @@ export default function MessageDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0a0a0f",
+    backgroundColor: themeColors.background,
   },
   header: {
     flexDirection: "row",
@@ -390,8 +391,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#181a26",
-    backgroundColor: "#0d0e15",
+    borderBottomColor: themeColors.border,
+    backgroundColor: themeColors.surface,
   },
   headerBtn: {
     padding: 4,
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#2563eb",
+    backgroundColor: themeColors.accent,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -499,7 +500,7 @@ const styles = StyleSheet.create({
   },
   webViewWrapper: {
     minHeight: 300,
-    backgroundColor: "#0d0e15",
+    backgroundColor: themeColors.surface,
     borderRadius: 8,
     overflow: "hidden",
   },

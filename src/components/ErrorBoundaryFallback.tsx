@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import type { FallbackProps } from "react-error-boundary";
 import { AlertTriangle, RefreshCw, ChevronDown, ChevronUp, Bug } from "lucide-react-native";
+import { themeColors, brandName } from "../config";
 
 /**
  * ErrorBoundaryFallback
@@ -37,7 +38,7 @@ export default function ErrorBoundaryFallback({
         {/* Title and Explanation */}
         <Text style={styles.title}>Something went wrong</Text>
         <Text style={styles.description}>
-          Mailflare encountered an unexpected problem while displaying this view.
+          {brandName} encountered an unexpected problem while displaying this view.
           Your emails, accounts, and session data remain secure.
         </Text>
 
@@ -92,7 +93,7 @@ export default function ErrorBoundaryFallback({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0a0a0f",
+    backgroundColor: themeColors.background,
   },
   content: {
     flex: 1,
@@ -184,12 +185,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#3b82f6",
+    backgroundColor: themeColors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 28,
     width: "100%",
-    shadowColor: "#3b82f6",
+    shadowColor: themeColors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

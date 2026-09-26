@@ -26,6 +26,7 @@ import {
 } from "lucide-react-native";
 import { useMailboxes, useSendEmail } from "../api/queries";
 import { useDraftStore } from "../stores/draftStore";
+import { themeColors } from "../config";
 import type { RootStackParamList, Mailbox } from "../types";
 
 type ComposeRouteProp = RouteProp<RootStackParamList, "Compose">;
@@ -464,7 +465,7 @@ export default function ComposeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0a0a0f",
+    backgroundColor: themeColors.background,
   },
   container: {
     flex: 1,
@@ -476,8 +477,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#181a26",
-    backgroundColor: "#0d0e15",
+    borderBottomColor: themeColors.border,
+    backgroundColor: themeColors.surface,
   },
   closeBtn: {
     padding: 4,
@@ -490,7 +491,7 @@ const styles = StyleSheet.create({
   sendBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2563eb",
+    backgroundColor: themeColors.accent,
     paddingHorizontal: 16,
     paddingVertical: 7,
     borderRadius: 20,
@@ -563,17 +564,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#161824",
+    borderBottomColor: themeColors.border,
   },
   fieldLabel: {
     width: 60,
     fontSize: 14,
-    color: "#64748b",
+    color: themeColors.textDim,
     fontWeight: "500",
   },
   fieldInput: {
     flex: 1,
-    color: "#f1f5f9",
+    color: themeColors.text,
     fontSize: 15,
     padding: 0,
   },
@@ -583,7 +584,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   fromText: {
-    color: "#f1f5f9",
+    color: themeColors.text,
     fontSize: 15,
     fontWeight: "500",
   },
@@ -592,7 +593,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#23263a",
+    borderColor: themeColors.border,
     overflow: "hidden",
     marginBottom: 8,
   },
@@ -604,7 +605,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   dropdownItemActive: {
-    backgroundColor: "#1e3a8a",
+    backgroundColor: themeColors.primaryDark,
   },
   dropdownItemText: {
     color: "#cbd5e1",
@@ -617,7 +618,7 @@ const styles = StyleSheet.create({
   ccBccToggle: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    backgroundColor: "#161824",
+    backgroundColor: themeColors.surfaceAlt,
     borderRadius: 4,
   },
   ccBccToggleText: {
@@ -632,7 +633,7 @@ const styles = StyleSheet.create({
   },
   bodyInput: {
     flex: 1,
-    color: "#f1f5f9",
+    color: themeColors.text,
     fontSize: 15,
     lineHeight: 22,
     minHeight: 300,

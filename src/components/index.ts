@@ -17,3 +17,6 @@ export { default as SkeletonEmailItem } from "./SkeletonEmailItem";
 
 export { default as EmptyState } from "./EmptyState";
 export type { EmptyStateProps } from "./EmptyState";
+
+export { default as BrandLogo } from "./BrandLogo";
+export type { BrandLogoProps } from "./BrandLogo";

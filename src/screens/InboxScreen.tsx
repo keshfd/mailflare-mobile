@@ -19,6 +19,7 @@ import {
   RefreshCw,
   SlidersHorizontal,
 } from "lucide-react-native";
+import { themeColors } from "../config";
 import {
   useInfiniteMessages,
   useMailboxes,
@@ -285,7 +286,7 @@ export default function InboxScreen() {
           style={styles.headerBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Menu size={24} color="#f1f5f9" />
+          <Menu size={24} color={themeColors.text} />
         </TouchableOpacity>
 
         <View style={styles.headerTitleCol}>
@@ -306,9 +307,9 @@ export default function InboxScreen() {
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           {isSearchActive ? (
-            <X size={22} color="#94a3b8" />
+            <X size={22} color={themeColors.textMuted} />
           ) : (
-            <Search size={22} color="#f1f5f9" />
+            <Search size={22} color={themeColors.text} />
           )}
         </TouchableOpacity>
       </View>
@@ -316,11 +317,11 @@ export default function InboxScreen() {
       {/* Collapsible Search Input */}
       {isSearchActive && (
         <View style={styles.searchBarContainer}>
-          <Search size={18} color="#64748b" style={styles.searchBarIcon} />
+          <Search size={18} color={themeColors.textDim} style={styles.searchBarIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search sender, subject, body..."
-            placeholderTextColor="#64748b"
+            placeholderTextColor={themeColors.textDim}
             value={searchInput}
             onChangeText={handleSearchChange}
             autoCapitalize="none"
@@ -330,7 +331,7 @@ export default function InboxScreen() {
           />
           {searchInput.length > 0 && (
             <TouchableOpacity onPress={handleClearSearch}>
-              <X size={18} color="#94a3b8" />
+              <X size={18} color={themeColors.textMuted} />
             </TouchableOpacity>
           )}
         </View>
@@ -374,8 +375,8 @@ export default function InboxScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#3b82f6"
-              colors={["#3b82f6"]}
+              tintColor={themeColors.primary}
+              colors={[themeColors.primary]}
             />
           }
           onEndReached={() => {
@@ -438,7 +439,7 @@ export default function InboxScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0a0a0f",
+    backgroundColor: themeColors.background,
   },
   header: {
     flexDirection: "row",
@@ -447,8 +448,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#181a26",
-    backgroundColor: "#0d0e15",
+    borderBottomColor: themeColors.border,
+    backgroundColor: themeColors.surface,
   },
   headerBtn: {
     padding: 6,
@@ -471,14 +472,14 @@ const styles = StyleSheet.create({
   searchBarContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#161824",
+    backgroundColor: themeColors.surfaceAlt,
     marginHorizontal: 16,
     marginTop: 10,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#23263a",
+    borderColor: themeColors.border,
   },
   searchBarIcon: {
     marginRight: 8,
@@ -496,32 +497,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#141622",
+    borderBottomColor: themeColors.border,
   },
   countText: {
     fontSize: 12,
-    color: "#64748b",
+    color: themeColors.textDim,
     fontWeight: "500",
   },
   filterPill: {
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 14,
-    backgroundColor: "#161824",
+    backgroundColor: themeColors.surfaceAlt,
     borderWidth: 1,
-    borderColor: "#23263a",
+    borderColor: themeColors.border,
   },
   filterPillActive: {
-    backgroundColor: "#1e3a8a",
-    borderColor: "#3b82f6",
+    backgroundColor: themeColors.primaryDark,
+    borderColor: themeColors.primary,
   },
   filterPillText: {
     fontSize: 12,
-    color: "#94a3b8",
+    color: themeColors.textMuted,
     fontWeight: "500",
   },
   filterPillTextActive: {
-    color: "#60a5fa",
+    color: themeColors.primaryLight,
     fontWeight: "700",
   },
   skeletonContainer: {
@@ -543,10 +544,10 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#2563eb",
+    backgroundColor: themeColors.accent,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#2563eb",
+    shadowColor: themeColors.accent,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.45,
     shadowRadius: 10,

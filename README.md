@@ -28,7 +28,7 @@ Mailflare Mobile is designed to be forked and rebranded to launch your own email
 module.exports = {
   appName: 'TrooPost Mail',
   bundleIdentifier: 'com.troopost.mail',
-  apiBaseUrl: process.env.EXPO_PUBLIC_MAILFLARE_API_URL || 'https://api.troopost.com',
+  apiBaseUrl: process.env.EXPO_PUBLIC_MAILFLARE_API_URL || 'https://mail.troopost.com',
   colors: {
     primary: '#0055FF', // Your brand color
     background: '#FFFFFF',
@@ -65,10 +65,30 @@ To utilize the automated pipeline:
    npm install
    ```
 
-3. **Configure Android Push Notifications (Firebase):**
+3. **Register with Expo Application Services (EAS):**
+   Each developer (or fork) must register the project under their own Expo account to generate a unique EAS Project ID:
+   ```bash
+   npx eas-cli init
+   ```
+   This command will:
+   * Prompt you to log in to your Expo account (or create one).
+   * Register the app and generate a new **EAS Project ID**.
+   * Automatically update the project configuration.
+
+   After running `eas init`, paste the generated Project ID into `brand.config.js`:
+   ```js
+   easProjectId: "your-generated-project-id-here",
+   ```
+
+   **For CI/CD pipelines (GitHub Actions):** Instead of hardcoding the ID in `brand.config.js`, inject it as an environment variable named `EAS_PROJECT_ID` in your repository secrets. The `app.config.js` resolves the ID via: `process.env.EAS_PROJECT_ID || brand.easProjectId`.
+
+   > If neither is set, Expo will prompt you to run `eas init` when you attempt a build.
+
+
+4. **Configure Android Push Notifications (Firebase):**
    Standalone Android builds (APKs and AABs) require Google Firebase Cloud Messaging (FCM):
    * Create a project in the [Firebase Console](https://console.firebase.google.com/).
-   * Register an Android app using your package name (`co.mailflare.app` as defined in `app.json`).
+   * Register an Android app using your package name (as defined in `brand.config.js` → `bundleIdentifier`).
    * Download `google-services.json` and place it in the project root:
      ```bash
      cp google-services.json.example google-services.json
@@ -88,7 +108,7 @@ To utilize the automated pipeline:
      ```
      Select **Android → Preview/Production → Push Notifications → Set up Google Service Account Key**.
 
-4. **Configure your Mailflare API endpoint:**
+5. **Configure your Mailflare API endpoint:**
 
    * **Local Development:**
      Copy `.env.example` to create a local `.env` file:
@@ -108,12 +128,12 @@ To utilize the automated pipeline:
      ```
      Alternatively, configure it via the [Expo Dashboard](https://expo.dev) under **Your Project → Configuration → Environment Variables**. You can scope this variable across all environments (`development`, `preview`, `production`) or configure distinct backend URLs per environment.
 
-5. **Start the local development server:**
+6. **Start the local development server:**
    ```bash
    npx expo start
    ```
 
-6. **Build for testing or production:**
+7. **Build for testing or production:**
    ```bash
    # Cloud Preview APK for Android (sideloadable test build)
    npm run build:android

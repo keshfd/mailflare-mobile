@@ -24,6 +24,7 @@ import {
 } from "lucide-react-native";
 import { useAuth } from "../hooks/useAuth";
 import { useFolders, useMessageCounts, useMailboxes } from "../api/queries";
+import { themeColors, brandName } from "../config";
 import type { Mailbox, SystemFolderType } from "../types";
 
 export interface FolderDrawerProps {
@@ -108,7 +109,7 @@ export default function FolderDrawer({
                 </View>
                 <View style={styles.userInfo}>
                   <Text style={styles.userName} numberOfLines={1}>
-                    {user?.name || "Mailflare User"}
+                    {user?.name || `${brandName} User`}
                   </Text>
                   <Text style={styles.userEmail} numberOfLines={1}>
                     {user?.email || ""}
@@ -191,7 +192,7 @@ export default function FolderDrawer({
                     <View style={styles.folderLeft}>
                       <IconComponent
                         size={20}
-                        color={isActive ? "#3b82f6" : "#94a3b8"}
+                        color={isActive ? themeColors.primary : themeColors.textMuted}
                         style={styles.folderIcon}
                       />
                       <Text
@@ -236,7 +237,7 @@ export default function FolderDrawer({
 
                   {customFolders.map((cf) => {
                     const isActive = activeCustomFolderId === cf.id;
-                    const folderColor = cf.color || "#3b82f6";
+                    const folderColor = cf.color || themeColors.primary;
 
                     return (
                       <TouchableOpacity
@@ -305,9 +306,9 @@ const styles = StyleSheet.create({
   drawerContainer: {
     width: "82%",
     maxWidth: 340,
-    backgroundColor: "#0d0e15",
+    backgroundColor: themeColors.surface,
     borderLeftWidth: 1,
-    borderLeftColor: "#1e202e",
+    borderLeftColor: themeColors.border,
     shadowColor: "#000",
     shadowOffset: { width: -4, height: 0 },
     shadowOpacity: 0.5,
@@ -337,7 +338,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#2563eb",
+    backgroundColor: themeColors.accent,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -385,16 +386,16 @@ const styles = StyleSheet.create({
   mailboxPill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#161824",
+    backgroundColor: themeColors.surfaceAlt,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#23263a",
+    borderColor: themeColors.border,
   },
   mailboxPillActive: {
-    backgroundColor: "#1e3a8a",
-    borderColor: "#3b82f6",
+    backgroundColor: themeColors.primaryDark,
+    borderColor: themeColors.primary,
   },
   mailboxPillIcon: {
     marginRight: 6,
@@ -438,7 +439,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   folderLabelActive: {
-    color: "#60a5fa",
+    color: themeColors.primaryLight,
     fontWeight: "700",
   },
   badge: {
@@ -449,10 +450,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   badgePrimary: {
-    backgroundColor: "#2563eb",
+    backgroundColor: themeColors.accent,
   },
   badgeMuted: {
-    backgroundColor: "#1e202e",
+    backgroundColor: themeColors.border,
   },
   badgeText: {
     fontSize: 12,
@@ -477,7 +478,7 @@ const styles = StyleSheet.create({
   drawerFooter: {
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: "#181a26",
+    borderTopColor: themeColors.border,
   },
   logoutBtn: {
     flexDirection: "row",
@@ -487,7 +488,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   logoutText: {
-    color: "#ef4444",
+    color: themeColors.error,
     fontSize: 15,
     fontWeight: "600",
     marginLeft: 10,

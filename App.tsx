@@ -18,6 +18,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useAppConfigStore } from "./src/stores/appConfigStore";
 import { useAuthStore } from "./src/stores/authStore";
 import { resolveBaseUrl, getEnvBaseUrl } from "./src/config/baseUrl";
+import { ThemeProvider, themeColors } from "./src/config";
 import { useAuth } from "./src/hooks/useAuth";
 import {
   usePushNotifications,
@@ -84,7 +85,7 @@ function MainNavigator({
         screenOptions={{
           headerShown: false,
           animation: "slide_from_right",
-          contentStyle: { backgroundColor: "#0a0a0f" },
+          contentStyle: { backgroundColor: themeColors.background },
         }}
       >
         <Stack.Screen name="Inbox" component={InboxScreen} />
@@ -208,34 +209,36 @@ function AppContent() {
  */
 export default function App() {
   return (
-    <GestureHandlerRootView style={styles.root}>
-      <SafeAreaProvider>
-        <ErrorBoundary FallbackComponent={ErrorBoundaryFallback}>
-          <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={{
-              persister: asyncStoragePersister,
-              maxAge: 24 * 60 * 60 * 1000, // 24 hours
-            }}
-          >
-            <StatusBar style="light" />
-            <AppContent />
-            <ToastContainer />
-          </PersistQueryClientProvider>
-        </ErrorBoundary>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <ThemeProvider>
+      <GestureHandlerRootView style={styles.root}>
+        <SafeAreaProvider>
+          <ErrorBoundary FallbackComponent={ErrorBoundaryFallback}>
+            <PersistQueryClientProvider
+              client={queryClient}
+              persistOptions={{
+                persister: asyncStoragePersister,
+                maxAge: 24 * 60 * 60 * 1000, // 24 hours
+              }}
+            >
+              <StatusBar style="light" />
+              <AppContent />
+              <ToastContainer />
+            </PersistQueryClientProvider>
+          </ErrorBoundary>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </ThemeProvider>
   );
 }
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#0a0a0f",
+    backgroundColor: themeColors.background,
   },
   loading: {
     flex: 1,
-    backgroundColor: "#0a0a0f",
+    backgroundColor: themeColors.background,
     justifyContent: "center",
     alignItems: "center",
   },

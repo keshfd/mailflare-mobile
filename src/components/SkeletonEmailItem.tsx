@@ -8,6 +8,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useEffect } from "react";
+import { themeColors } from "../config";
 
 /**
  * SkeletonEmailItem — A shimmer placeholder that mirrors the EmailListItem
@@ -57,9 +58,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: "#0d0e15",
+    backgroundColor: themeColors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#1e202e",
+    borderBottomColor: themeColors.border,
     alignItems: "flex-start",
   },
   avatarPlaceholder: {

@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
 } from "lucide-react-native";
 import SenderAvatar from "./SenderAvatar";
+import { themeColors } from "../config";
 import type { Message } from "../types";
 
 export interface EmailListItemProps {
@@ -224,9 +225,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: "#0d0e15",
+    backgroundColor: themeColors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#1e202e",
+    borderBottomColor: themeColors.border,
     alignItems: "flex-start",
   },
   unreadContainer: {
@@ -245,9 +246,9 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#3b82f6",
+    backgroundColor: themeColors.primary,
     borderWidth: 2,
-    borderColor: "#0d0e15",
+    borderColor: themeColors.surface,
   },
   contentCol: {
     flex: 1,
@@ -300,14 +301,14 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   leftAction: {
-    backgroundColor: "#2563eb",
+    backgroundColor: themeColors.accent,
     justifyContent: "center",
     alignItems: "flex-start",
     paddingLeft: 24,
     width: 90,
   },
   rightAction: {
-    backgroundColor: "#dc2626",
+    backgroundColor: themeColors.error,
     justifyContent: "center",
     alignItems: "flex-end",
     paddingRight: 24,

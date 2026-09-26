@@ -21,6 +21,7 @@ import { useAppConfigStore } from "../stores/appConfigStore";
 import { useAuthStore } from "../stores/authStore";
 import { getSessionToken } from "../utils/tokenStorage";
 import type { MessageAttachment } from "../types";
+import { themeColors } from "../config";
 
 export interface AttachmentListProps {
   messageId: string;
@@ -156,7 +157,7 @@ export default function AttachmentList({
 
               <View style={styles.actionContainer}>
                 {isDownloading ? (
-                  <ActivityIndicator size="small" color="#3b82f6" />
+                  <ActivityIndicator size="small" color={themeColors.primary} />
                 ) : (
                   <Download size={18} color="#64748b" />
                 )}
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: "#1e202e",
+    borderTopColor: themeColors.border,
   },
   title: {
     fontSize: 14,
@@ -194,7 +195,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     borderWidth: 1,
-    borderColor: "#23263a",
+    borderColor: themeColors.border,
   },
   iconContainer: {
     width: 38,
